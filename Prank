@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Skanowanie...</title>
+<style>
+  body {
+    background: black;
+    color: lime;
+    font-family: monospace;
+    text-align: center;
+    padding-top: 50px;
+  }
+  #video, #photo {
+    width: 90%;
+    max-width: 400px;
+    margin-top: 20px;
+    border: 2px solid lime;
+  }
+  button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 18px;
+  }
+</style>
+</head>
+<body>
+
+<h1>🔍 Skanowanie urządzenia...</h1>
+<p id="status">Inicjalizacja...</p>
+
+<video id="video" autoplay playsinline></video>
+<canvas id="canvas" style="display:none;"></canvas>
+<img id="photo" />
+
+<button onclick="startCamera()">Kontynuuj</button>
+
+<script>
+let video = document.getElementById('video');
+let canvas = document.getElementById('canvas');
+let photo = document.getElementById('photo');
+let status = document.getElementById('status');
+
+setTimeout(() => status.innerText = "Łączenie z kamerą...", 1000);
+setTimeout(() => status.innerText = "Wykryto urządzenie 📱", 2000);
+setTimeout(() => status.innerText = "Kliknij aby kontynuować...", 3000);
+
+async function startCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user" }
+    });
+
+    video.srcObject = stream;
+
+    setTimeout(() => {
+      takePhoto(stream);
+    }, 2000);
+
+  } catch (e) {
+    alert("Brak dostępu do kamery 😢");
+  }
+}
+
+function takePhoto(stream) {
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  const dataUrl = canvas.toDataURL();
+
+  photo.src = dataUrl;
+  photo.style.display = "block";
+
+  // zatrzymanie kamery
+  stream.getTracks().forEach(track => track.stop());
+
+  status.innerText = "😂 Gotcha! To tylko żart!";
+}
+</script>
+
+</body>
+</html>
